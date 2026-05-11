@@ -1,0 +1,62 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Calibri;}}
+\fs24
+\b Proiect: NutriFit Tracker \b0\par
+\par
+\b Rezumat \b0\par
+NutriFit Tracker este o aplicație web single-page pentru urmărirea antrenamentelor și a nutriției personale. Aplicația permite utilizatorilor să înregistreze antrenamentele zilnice, mesele, să fixeze obiective zilnice pentru calorii și proteine și să urmărească progresul săptămânal la antrenamente. Interfața este responsive, cu modul light/dark și navigare pe săptămâni și zile.
+\par
+\b Cerințe cheie \b0\par
+- Interfață web (HTML/CSS/JS) cu două taburi principale: Antrenamente și Mese.
+- Backend PHP pentru API REST (endpoints pentru adăugare/obținere/ștergere antrenamente și mese, setare/obținere obiective).
+- Bază de date: MongoDB (înlocuit MySQL conform cerinței) — conexiune configurată în fișierul `.env` prin `MONGODB_URI`.
+- Persistență locală pentru preferințe (ex: temă, săptămâna/ziua selectată) folosind `localStorage`.
+- Notificări toast și dialoguri de confirmare personalizate.
+\par
+\b Arhitectură & Tehnologii \b0\par
+- Frontend: HTML5, CSS3 (variabile CSS, layout responsive), JavaScript (ES6+), fișiere principale: `index.php`, `assets/style.css`, `assets/app.js`.
+- Backend: PHP 8.x — endpoint-uri RESTful (ex: `/api/add_meal.php`, `/api/get_meals.php`, `/api/delete_meal.php`, `/api/add_workout.php`, `/api/get_workouts.php`, `/api/delete_workout.php`, `/api/set_goals.php`, `/api/get_goals.php`).
+- Bază de date: MongoDB Atlas — colecții pentru `meals`, `workouts`, `goals`, configurate prin `MONGODB_URI` și `DB_NAME` în `.env`.
+\par
+\b Schimbare importantă: MySQL -> MongoDB \b0\par
+Toate referințele la MySQL din arhitectură și implementare au fost înlăturate; în locul acestora:
+- Schema relațională inițială (MySQL) a fost transformată în colecții MongoDB document-oriented.
+- Exemple de structură colecții:
+  - `meals`: { `_id`, `userId`, `date` (ISO string), `category`, `calories`, `protein`, `notes`, `createdAt` }
+  - `workouts`: { `_id`, `userId`, `date` (ISO string), `exercise`, `sets`, `reps`, `notes`, `createdAt` }
+  - `goals`: { `_id`, `userId`, `date`, `caloriesGoal`, `proteinGoal`, `workoutDaysGoal` }
+- Conexiunea la DB se face folosind driverul oficial MongoDB pentru PHP (ext-mongodb) sau librăria `mongodb/mongodb` (composer). Configurarea folosește variabila `MONGODB_URI` din `.env`.
+\par
+\b Configurare & Instalare \b0\par
+1. Copiați fișierul `.env.example` în `.env` și completați `MONGODB_URI` și `DB_NAME`.
+2. Instalați dependențele PHP (dacă folosiți `composer` pentru helper MongoDB):
+   - `composer require mongodb/mongodb`
+3. Porniți serverul PHP local (sau configurați Apache/Nginx) în folderul proiectului:
+   - `php -S localhost:8000 -t public` (sau conform configurației voastre)
+4. Verificați că variabila `MONGODB_URI` este funcțională și că baza de date specificată există în Atlas.
+\par
+\b API & Formate \b0\par
+- `POST /api/add_meal.php` — payload JSON: `{ "date": "YYYY-MM-DD", "category": "Mic dejun|Pranz|Cina|Snack", "calories": number, "protein": number, "notes": string }`.
+- `GET /api/get_meals.php?start=YYYY-MM-DD&end=YYYY-MM-DD` — returnează mesele din intervalul dat.
+- `DELETE /api/delete_meal.php?id=<mealId>` — șterge o masă.
+- Similar pentru `workouts` și `goals`.
+\par
+\b Interfață utilizator \b0\par
+- Tab-uri clare pentru `Antrenamente` și `Mese`.
+- Navigare pe săptămâni (Prev/Next/Curent) și selecție pe zile (Luni–Duminică).
+- Mese afișate doar după ce utilizatorul selectează o zi (claritate UX).
+- Spinbuttons personalizate: calorii pas 20, proteine pas 5.
+\par
+\b Considerații de securitate \b0\par
+- Nu includeți credentiale sensibile în repository; folosiți `.env` pentru `MONGODB_URI`.
+- Asigurați acces restricționat la clusterul Atlas (IP whitelist, user cu permisiuni minime).
+- Validați și curățați input-urile pe backend înainte de inserție în MongoDB.
+\par
+\b Documentație & Pași următori \b0\par
+- Verificați fișierul `.env` pentru `MONGODB_URI` și actualizați-l cu conexiunea Atlas.
+- Dacă doriți, pot genera și scripturi de migrare pentru a transfera date dintr-un dump MySQL (dacă există) către colecții MongoDB.
+- Pot exporta acest document în format `.docx` la cerere (acum generat ca `.rtf` pentru compatibilitate imediată cu Word) sau pot rafina conținutul pe secțiuni specifice (ex: API docs, ERD -> colecții).
+\par
+\b Contact / Notă finală \b0\par
+Dacă vrei, adaptez documentul la un model Word specific (șablon, logo, culori) sau includ note pentru vorbitor. Spune-mi ce preferințe ai și le aplic imediat.
+}
