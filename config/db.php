@@ -18,24 +18,34 @@ if (file_exists($autoloadPath) && file_exists($platformCheckPath)) {
 }
 
 $envPath = __DIR__ . '/../.env';
-if (!file_exists($envPath)) {
-    send_json_error('Lipsește fișierul .env.');
-}
-
-$env = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $config = [];
 
-foreach ($env as $line) {
-    $line = trim($line);
+if (file_exists($envPath)) {
+    $env = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-    if ($line === '' || $line[0] === '#') {
-        continue;
-    }
+    foreach ($env as $line) {
+        $line = trim($line);
 
-    if (strpos($line, '=') !== false) {
-        list($key, $value) = explode('=', $line, 2);
-        $config[trim($key)] = trim($value);
+        if ($line === '' || $line[0] === '#') {
+            continue;
+        }
+
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $config[trim($key)] = trim($value);
+        }
     }
+}
+
+$envMongoUri = getenv('MONGODB_URI');
+$envDbName = getenv('DB_NAME');
+
+if (!isset($config['MONGODB_URI']) && $envMongoUri !== false) {
+    $config['MONGODB_URI'] = $envMongoUri;
+}
+
+if (!isset($config['DB_NAME']) && $envDbName !== false) {
+    $config['DB_NAME'] = $envDbName;
 }
 
 if (!isset($config['MONGODB_URI']) || !isset($config['DB_NAME'])) {
