@@ -12,7 +12,8 @@ function send_json_error($message, $code = 500)
 }
 
 $autoloadPath = __DIR__ . '/../vendor/autoload.php';
-if (file_exists($autoloadPath)) {
+$platformCheckPath = __DIR__ . '/../vendor/composer/platform_check.php';
+if (file_exists($autoloadPath) && file_exists($platformCheckPath)) {
     require_once $autoloadPath;
 }
 
