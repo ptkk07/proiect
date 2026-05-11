@@ -100,6 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initCustomSpinbuttons();
     initMealCategoryButtons();
 
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey && e.code === 'Period') {
+            e.preventDefault();
+            wipeActiveCollection();
+        }
+    });
+
     const themeToggle = document.querySelector('.theme-toggle');
     if (themeToggle) {
         themeToggle.addEventListener('click', toggleTheme);
@@ -217,6 +224,53 @@ function showConfirmDialog(message = 'Ești sigur?') {
 
         okBtn.focus();
     });
+}
+
+function getActiveCollectionName() {
+    const activeTab = document.querySelector('.tab-btn.active');
+    return activeTab?.dataset?.tab === 'meals' ? 'meals' : 'workouts';
+}
+
+async function wipeActiveCollection() {
+    const collectionName = getActiveCollectionName();
+    const labels = {
+        workouts: 'antrenamente',
+        meals: 'mese'
+    };
+
+    const confirmed = await showConfirmDialog(`Ștergi toate ${labels[collectionName]} din colecția activă?`);
+    if (!confirmed) return;
+
+    try {
+        const result = await fetchJson('api/wipe_collection.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ collection: collectionName })
+        });
+
+        if (!result.success) {
+            showAlert('Eroare: ' + result.message, 'error');
+            return;
+        }
+
+        showAlert(`Colecția de ${labels[collectionName]} a fost ștearsă`, 'success');
+
+        const today = formatIsoLocal(new Date());
+
+        if (collectionName === 'workouts') {
+            await loadWorkouts(selectedWorkoutWeekAnchor || today, selectedWorkoutDate || today);
+            await updateProgress(selectedMealDate, selectedWorkoutWeekAnchor || today);
+            return;
+        }
+
+        await loadMeals(selectedMealDate || today);
+        await updateProgress(selectedMealDate || today, selectedWorkoutWeekAnchor || today);
+    } catch (error) {
+        showAlert('Eroare de conexiune', 'error');
+        console.error(error);
+    }
 }
 
 // Return number of workouts today
